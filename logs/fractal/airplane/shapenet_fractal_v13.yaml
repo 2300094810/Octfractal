@@ -1,0 +1,123 @@
+SOLVER:
+  gpu: 0,
+  run: train
+
+  logdir: logs/fractal/v13
+  max_epoch: 1000
+  test_every_epoch: 10
+  log_per_iter: 50
+  ckpt_num: 10
+  port: 10001
+
+  type: adamw
+  weight_decay: 0.01
+  lr: 0.0001
+  rand_seed: 42
+  use_amp: True
+
+  lr_type: constant
+  step_size: [160, 240]
+
+DATA:
+  train:
+    name: shapenet_voxel_v10
+    depth: 8
+    full_depth: 2
+    depth_stop: 6
+
+    location: data/ShapeNet/datasets_256_test
+    filelist: data/ShapeNet/filelist/train_airplane.txt
+    voxel_cache_root: data/ShapeNet_process/airplane_train
+
+    # v13 keeps the sibling-AR path and adds an auto-decoder latent table.
+    batch_size: 16
+    shuffle: True
+    num_workers: 8
+    pin_memory: False
+
+  test:
+    name: shapenet_voxel_v10
+    depth: 8
+    full_depth: 2
+    depth_stop: 6
+
+    location: data/ShapeNet/datasets_256_test
+    filelist: data/ShapeNet/filelist/test_airplane.txt
+    voxel_cache_root: data/ShapeNet_process/airplane_test
+
+    batch_size: 16
+    shuffle: False
+    num_workers: 4
+    pin_memory: False
+
+MODEL:
+  depth: 8
+  full_depth: 2
+  depth_stop: 6
+  find_unused_parameters: True
+
+  FractalGen:
+    feature_dim: 384
+    full_depth: 2
+    depth_stop: 6
+    expander_num_heads: 4  # kept only for compatibility; ignored in v13
+
+    focal_alpha: 0.75
+    focal_gamma: 2.0
+    split_focal_alpha: 0.75
+    split_focal_gamma: 2.0
+
+    # Full-depth and final-depth occupancy threshold.
+    occ_threshold: 0.58
+    # Intermediate child continue/pruning threshold.
+    split_threshold: 0.55
+
+    occ_weight: 1.0
+    split_weight: 1.5
+    pattern_weight: 0.0
+    rate_weight: 0.1
+    kl_weight: 0.0
+
+    num_freqs: 6
+    pos_emb_scale: 1.0
+
+    latent_dim: 128
+    film_scale: 0.5
+    latent_depth_scale: 0.8
+
+    # Generation sampling.
+    default_temperature: 0.8
+    default_sample_mode: topk_threshold
+    default_max_nodes_per_depth: "2:64,3:256,4:1024,5:4096,6:12000"
+    min_keep_per_batch: 1
+    min_children_per_parent: 1
+    max_children_per_parent: 6
+    min_final_children_per_parent: 0
+    max_final_children_per_parent: 6
+
+    # Auto-decoder latent table. num_latents=0 means main_fractal_v13.py
+    # infers it from DATA.train.filelist.
+    use_autodecoder: True
+    num_latents: 0
+    latent_noise_std: 0.03
+    generation_latent_mode: table
+    generation_latent_noise_std: 0.05
+
+    # Scheduled sampling: during training, gradually mix predicted child masks
+    # into the sibling-AR history and next-level expansion.
+    # This value is the static fallback if the solver does not expose epoch.
+    scheduled_sampling_prob: 0.15
+    scheduled_sampling_start_epoch: 100
+    scheduled_sampling_warmup_epochs: 300
+    scheduled_sampling_max_prob: 0.35
+    scheduled_sampling_force_gt_min: True
+
+    use_pattern_loss: False
+
+GENERATION:
+  temperature: 0.8
+  sample_mode: topk_threshold
+  max_nodes_per_depth: "2:64,3:256,4:1024,5:4096,6:12000"
+  min_keep_per_batch: 1
+
+num_generate: 20

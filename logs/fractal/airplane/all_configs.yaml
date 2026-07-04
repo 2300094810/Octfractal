@@ -1,0 +1,155 @@
+BASE:
+- ''
+DATA:
+  test:
+    angle: &id001
+    - 180
+    - 180
+    - 180
+    batch_size: 16
+    depth: 8
+    depth_stop: 6
+    disable: false
+    distort: false
+    filelist: data/ShapeNet/filelist/test_airplane.txt
+    flip: &id002
+    - 0.0
+    - 0.0
+    - 0.0
+    full_depth: 2
+    interval: &id003
+    - 1
+    - 1
+    - 1
+    jitter: 0.0
+    location: data/ShapeNet/datasets_256_test
+    name: shapenet_voxel_v10
+    num_workers: 4
+    orient_normal: ''
+    pin_memory: false
+    scale: 0.0
+    shuffle: false
+    take: -1
+    uniform: false
+    voxel_cache_root: data/ShapeNet_process/airplane_test
+  train:
+    angle: *id001
+    batch_size: 16
+    depth: 8
+    depth_stop: 6
+    disable: false
+    distort: false
+    filelist: data/ShapeNet/filelist/train_airplane.txt
+    flip: *id002
+    full_depth: 2
+    interval: *id003
+    jitter: 0.0
+    location: data/ShapeNet/datasets_256_test
+    name: shapenet_voxel_v10
+    num_workers: 8
+    orient_normal: ''
+    pin_memory: false
+    scale: 0.0
+    shuffle: true
+    take: -1
+    uniform: false
+    voxel_cache_root: data/ShapeNet_process/airplane_train
+GENERATION:
+  max_nodes_per_depth: 2:64,3:256,4:1024,5:4096,6:12000
+  min_keep_per_batch: 1
+  sample_mode: topk_threshold
+  temperature: 0.8
+LOSS:
+  name: ''
+MODEL:
+  FractalGen:
+    default_max_nodes_per_depth: 2:64,3:256,4:1024,5:4096,6:12000
+    default_sample_mode: topk_threshold
+    default_temperature: 0.8
+    depth_stop: 6
+    expander_num_heads: 4
+    feature_dim: 384
+    film_scale: 0.5
+    focal_alpha: 0.75
+    focal_gamma: 2.0
+    full_depth: 2
+    generation_latent_mode: table
+    generation_latent_noise_std: 0.05
+    kl_weight: 0.0
+    latent_depth_scale: 0.8
+    latent_dim: 128
+    latent_noise_std: 0.03
+    max_children_per_parent: 6
+    max_final_children_per_parent: 6
+    min_children_per_parent: 1
+    min_final_children_per_parent: 0
+    min_keep_per_batch: 1
+    num_freqs: 6
+    num_latents: 0
+    occ_threshold: 0.58
+    occ_weight: 1.0
+    pattern_weight: 0.0
+    pos_emb_scale: 1.0
+    rate_weight: 0.1
+    scheduled_sampling_force_gt_min: true
+    scheduled_sampling_max_prob: 0.35
+    scheduled_sampling_prob: 0.15
+    scheduled_sampling_start_epoch: 100
+    scheduled_sampling_warmup_epochs: 300
+    split_focal_alpha: 0.75
+    split_focal_gamma: 2.0
+    split_threshold: 0.55
+    split_weight: 1.5
+    use_autodecoder: true
+    use_pattern_loss: false
+  channel: 3
+  depth: 8
+  depth_stop: 6
+  feature: ND
+  find_unused_parameters: true
+  full_depth: 2
+  name: ''
+  nempty: false
+  sync_bn: false
+  use_checkpoint: false
+SOLVER:
+  alias: ''
+  best_val: min:loss
+  ckpt: logs/fractal/v13/best_model.pth
+  ckpt_num: 10
+  clip_grad: -1.0
+  ddp_mode: spawn
+  empty_cache: 50
+  eval_epoch: 1
+  eval_step: -1
+  gamma: 0.1
+  gpu:
+  - 0
+  log_per_iter: 50
+  logdir: logs/fractal/v13
+  lr: 0.0001
+  lr_min: 0.0001
+  lr_power: 0.9
+  lr_type: constant
+  max_epoch: 1000
+  milestones:
+  - 120
+  - 180
+  port: 10001
+  progress_bar: true
+  rand_seed: 42
+  run: generate
+  step_size:
+  - 160
+  - 240
+  test_every_epoch: 10
+  type: adamw
+  use_amp: true
+  warmup_epoch: 20
+  warmup_init: 0.001
+  weight_decay: 0.01
+  zero_grad_to_none: false
+SYS:
+  cmds: python v13/main_fractal_v13.py --config configs/shapenet_fractal_v13.yaml
+    SOLVER.run generate SOLVER.ckpt logs/fractal/v13/best_model.pth
+num_generate: 20

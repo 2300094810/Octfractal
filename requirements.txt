@@ -1,0 +1,9 @@
+thsolver
+numpy
+scipy
+scikit-image
+tqdm
+pyyaml
+tensorboard
+open3d
+trimesh
