@@ -34,5 +34,9 @@ python main_fractal.py --config configs/shapenet_fractal.yaml SOLVER.run generat
 ```
 最终生成的体素占据结果保存在logs/fractal/airplane/visual目录下，生成的sdf与mesh则在logs/fractal/airplane/sdf目录下
 
+## Checkpoints
+
+训练好的权重与完整大作业文件已上传北大网盘：[2300094810_王兴辰_几何计算前沿大作业_Octfractal](https://disk.pku.edu.cn/link/AA231A756E92994BD9BBCCD4D104033F6F)（永久有效）。
+
 ## P.S
 如果想要生成别的数据，请自行修改预处理的数据类别和参数文件进行训练
